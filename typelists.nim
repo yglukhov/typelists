@@ -55,6 +55,15 @@ macro typeListFindIt*(t: typedesc[tuple], predicate: untyped): untyped =
 
     result.add(newNimNode(nnkElseExpr).add(newLit(-1)))
 
+macro typeListForEachIt*(t: typedesc[tuple], body: untyped): untyped =
+    let impl = t.getTupleImpl()
+    result = newNimNode(nnkStmtList)
+    for i in 0 ..< impl.len:
+        let it = impl[i]
+        let pred = copyNimTree(body)
+        recursiveReplace(pred, "it", it)
+        result.add(newBlockStmt(pred))
+
 macro tupleRemoveElemsMasked(t: typedesc[tuple], mask: static[openarray[bool]]): untyped =
     let impl = t.getTupleImpl()
     assert(impl.len == mask.len)

@@ -41,3 +41,13 @@ suite "Typelists":
 
         check:
             typeListTypeRepr(Foo) == "(int, float, string)"
+
+    test "Iterator":
+        type Foo = (int, float)
+        var i = 0
+        typeListForEachIt(Foo):
+            if i == 0:
+                assert(it is int)
+            else:
+                assert(it is float)
+            inc i
