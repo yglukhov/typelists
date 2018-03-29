@@ -4,6 +4,7 @@ suite "Typelists":
     test "1":
         type MyTup = (int, float)
         type TupleOf5Ints = makeTypeListIt(5, int)
+        type TupleOf3IntsAnd2Floats = makeTypeListIt(5, when it < 3: int else: float)
         type TupleOf5IntsAndFloat = typeListAppend(TupleOf5Ints, float)
         type TupleOf5IntsAndFloatAndMyTup = typeListAppendTuple(TupleOf5IntsAndFloat, MyTup)
         type MyTup2 = (int, float, float, int)
@@ -14,6 +15,7 @@ suite "Typelists":
         check:
             typeListTypeRepr(MyTup) == "(int, float)"
             typeListTypeRepr(TupleOf5Ints) == "(int, int, int, int, int)"
+            typeListTypeRepr(TupleOf3IntsAnd2Floats) == "(int, int, int, float, float)"
             typeListTypeRepr(TupleOf5IntsAndFloat) == "(int, int, int, int, int, float)"
             typeListTypeRepr(TupleOf5IntsAndFloatAndMyTup) == "(int, int, int, int, int, float, int, float)"
             typeListTypeRepr(MyTup2WithFloatsDeleted) == "(int, int)"
