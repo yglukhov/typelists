@@ -17,13 +17,13 @@ suite "Typelists":
         type Foo = typeListFilterIt((int, float, int32), it isnot int)
 
         check:
-            typeListTypeRepr(MyTup) == "(int, float)"
-            typeListTypeRepr(TupleOf5Ints) == "(int, int, int, int, int)"
-            typeListTypeRepr(TupleOf5IntsAndFloat) == "(int, int, int, int, int, float)"
-            typeListTypeRepr(TupleOf5IntsAndFloatAndMyTup) == "(int, int, int, int, int, float, int, float)"
-            typeListTypeRepr(MyTup2WithFloatsDeleted) == "(int, int)"
-            typeListTypeRepr(InvertFloatsanInts) == "(float, int, int, float)"
-            typeListTypeRepr(Foo) == "(float, int32)"
+            typeListRepr(MyTup) == "(int, float)"
+            typeListRepr(TupleOf5Ints) == "(int, int, int, int, int)"
+            typeListRepr(TupleOf5IntsAndFloat) == "(int, int, int, int, int, float)"
+            typeListRepr(TupleOf5IntsAndFloatAndMyTup) == "(int, int, int, int, int, float, int, float)"
+            typeListRepr(MyTup2WithFloatsDeleted) == "(int, int)"
+            typeListRepr(InvertFloatsanInts) == "(float, int, int, float)"
+            typeListRepr(Foo) == "(float, int32)"
 
             typeListCountIt(MyTup2, it is float) == 2
             typeListCountIt(MyTup2, it is int) == 2

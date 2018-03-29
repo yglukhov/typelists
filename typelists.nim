@@ -39,7 +39,7 @@ macro makeTypeListIt*(size: static[int], predicate: untyped): untyped =
 macro typeListTypeAt*(t: typedesc[tuple], pos: static[int]): untyped =
     t.getTupleImpl()[pos]
 
-macro typeListTypeRepr*(t: typed): untyped =
+macro typeListRepr*(t: typed): untyped =
     newLit(repr(t.getTypeImpl()[1].getTypeImpl()))
 
 macro typeListFindIt*(t: typedesc[tuple], predicate: untyped): untyped =
