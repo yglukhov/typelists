@@ -2,6 +2,9 @@
 Typelists in Nim
 
 ## Usage
+
+See more examples in the [test file](https://github.com/yglukhov/typelists/blob/master/tests/test1.nim)
+
 ```nim
 import typelists, unittest
 
