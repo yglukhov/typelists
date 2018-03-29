@@ -15,6 +15,11 @@ proc recursiveReplace*(n: NimNode, occurence: string, withNode: NimNode) =
         else:
             recursiveReplace(c, occurence, withNode)
 
+macro typeListFromValues*(values: varargs[typed]): untyped =
+    result = newNimNode(nnkPar)
+    for v in values:
+        result.add(newCall(newIdentNode("type"), v))
+
 macro typeListMapIt*(t: typedesc[tuple], predicate: untyped): untyped =
     let impl = t.getTupleImpl()
     result = newNimNode(nnkPar)

@@ -32,3 +32,12 @@ suite "Typelists":
 
             (typeListTypeAt(MyTup, 0) is int) == true
             (typeListTypeAt(MyTup, 1) is float) == true
+
+    test "From values":
+        var a: int
+        let b = float(1.2)
+        let c = "hello"
+        type Foo = typeListFromValues(a, b, c)
+
+        check:
+            typeListTypeRepr(Foo) == "(int, float, string)"
