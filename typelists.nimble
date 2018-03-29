@@ -5,6 +5,8 @@ author        = "Yuriy Glukhov"
 description   = "Type lists"
 license       = "MIT"
 
+skipDirs      = @["tests"]
+
 # Dependencies
 
 requires "nim >= 0.18"
