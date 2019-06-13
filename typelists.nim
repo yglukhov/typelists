@@ -1,10 +1,10 @@
 import macros
 
-proc getTupleImpl(t: typedesc[tuple]): NimNode =
+proc getTupleImpl(t: NimNode): NimNode =
     getTypeImpl(t)[1].getTypeImpl()
 
 macro typeListLen*(t: typedesc[tuple]): int =
-    t.getTupleImpl().len
+    newLit(t.getTupleImpl().len)
 
 proc recursiveReplace*(n: NimNode, occurence: string, withNode: NimNode) =
     for i in 0 ..< n.len:
