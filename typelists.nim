@@ -6,34 +6,45 @@ proc getTupleImpl(t: NimNode): NimNode =
 macro typeListLen*(t: typedesc[tuple]): int =
     newLit(t.getTupleImpl().len)
 
-proc recursiveReplace*(n: NimNode, occurence: string, withNode: NimNode) =
+proc recursiveReplace*(n: NimNode, replaceMap: openarray[tuple[occurence: string, withNode: NimNode]]) =
     for i in 0 ..< n.len:
         let c = n[i]
         if c.kind == nnkIdent:
-            if $c == occurence:
-                n[i] = copyNimTree(withNode)
+            for (k, v) in replaceMap:
+                if $c == k:
+                    n[i] = copyNimTree(v)
         else:
-            recursiveReplace(c, occurence, withNode)
+            recursiveReplace(c, replaceMap)
+
+proc replaceIt(n, it: NimNode, iIt: int) =
+    recursiveReplace(n, {"it": it, "iIt": newLit(iIt)})
 
 macro typeListFromValues*(values: varargs[typed]): untyped =
-    result = newNimNode(nnkPar)
+    result = newNimNode(nnkTupleConstr)
     for v in values:
         result.add(newCall(newIdentNode("type"), v))
 
 macro typeListMapIt*(t: typedesc[tuple], predicate: untyped): untyped =
     let impl = t.getTupleImpl()
-    result = newNimNode(nnkPar)
+    result = newNimNode(nnkTupleConstr)
     for i in 0 ..< impl.len:
         let it = impl[i]
         let pred = copyNimTree(predicate)
-        recursiveReplace(pred, "it", it)
+        replaceIt(pred, it, i)
         result.add(pred)
 
-macro makeTypeListIt*(size: static[int], predicate: untyped): untyped =
-    result = newNimNode(nnkPar)
+macro typeListMakeIt*(size: static[int], predicate: untyped): untyped =
+    result = newNimNode(nnkTupleConstr)
     for i in 0 ..< size:
         let pred = copyNimTree(predicate)
-        recursiveReplace(pred, "it", newLit(i))
+        recursiveReplace(pred, {"iIt": newLit(i)})
+        result.add(pred)
+
+macro makeTypeListIt*(size: static[int], predicate: untyped): untyped {.deprecated: "Use typeListMakeIt".} =
+    result = newNimNode(nnkTupleConstr)
+    for i in 0 ..< size:
+        let pred = copyNimTree(predicate)
+        recursiveReplace(pred, {"it": newLit(i)})
         result.add(pred)
 
 macro typeListTypeAt*(t: typedesc[tuple], pos: static[int]): untyped =
@@ -48,7 +59,7 @@ macro typeListFindIt*(t: typedesc[tuple], predicate: untyped): untyped =
     for i in 0 ..< impl.len:
         let it = impl[i]
         let pred = copyNimTree(predicate)
-        recursiveReplace(pred, "it", it)
+        replaceIt(pred, it, i)
         let elifBranch = newNimNode(nnkElifExpr)
         elifBranch.add(pred, newLit(i))
         result.add(elifBranch)
@@ -61,13 +72,13 @@ macro typeListForEachIt*(t: typedesc[tuple], body: untyped): untyped =
     for i in 0 ..< impl.len:
         let it = impl[i]
         let pred = copyNimTree(body)
-        recursiveReplace(pred, "it", it)
+        replaceIt(pred, it, i)
         result.add(newBlockStmt(pred))
 
 macro tupleRemoveElemsMasked(t: typedesc[tuple], mask: static[openarray[bool]]): untyped =
     let impl = t.getTupleImpl()
     assert(impl.len == mask.len)
-    result = newNimNode(nnkPar)
+    result = newNimNode(nnkTupleConstr)
     for i in 0 ..< impl.len:
         if mask[i]:
             result.add(impl[i])
@@ -78,7 +89,7 @@ macro makeTupleFilterMask(t: typedesc[tuple], predicate: untyped): untyped =
     for i in 0 ..< impl.len:
         let it = impl[i]
         let pred = copyNimTree(predicate)
-        recursiveReplace(pred, "it", it)
+        replaceIt(pred, it, i)
         result.add(pred)
     # echo "MASK: ", treeRepr(result)
 
@@ -106,7 +117,7 @@ template typeListCountIt*(t: typedesc[tuple], predicate: untyped): int =
 
 macro typeListDel*(t: typedesc[tuple], a, b: static[int]): untyped =
     let impl = t.getTupleImpl()
-    result = newNimNode(nnkPar)
+    result = newNimNode(nnkTupleConstr)
     for i in 0 ..< impl.len:
         if i < a or i > b:
             result.add(impl[i])
